@@ -18,7 +18,7 @@ import Page1 from './page1.js';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import TextField from '@material-ui/core/TextField';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import moment from 'moment'
 
 const GreenCheckbox = withStyles({
   root: {
@@ -138,15 +138,15 @@ export default function Page2() {
 
   const [currRow, setCurrRow] = React.useState({})
 
-  const [selectedDate1, setSelectedDate1] = React.useState("");
-  const [selectedDate2, setSelectedDate2] = React.useState("");
+  const [selectedDate1, setSelectedDate1] = React.useState(moment(Date.now()).format("DD-MM-YYYY"));
+  const [selectedDate2, setSelectedDate2] = React.useState(moment(Date.now()).format("DD-MM-YYYY"));
 
-  const handleDate1Change = (date) => {
-    setSelectedDate1(date);
+  const handleDate1Change = (e) => {
+    setSelectedDate1(e.target.value);
   };
 
-  const handleDate2Change = (date) => {
-    setSelectedDate2(date);
+  const handleDate2Change = (e) => {
+    setSelectedDate2(e.target.value);
   };
 
   React.useEffect(() => {
@@ -177,17 +177,20 @@ export default function Page2() {
       setNewRows(rows.filter(item => item.Lession_Name === "SAT"))
     if (state.GMAT)
       setNewRows(rows.filter(item => item.Lession_Name === "GMAT"))
-    if (state.requestDate)
-      setNewRows(rows.filter(item => ((item.Booking_Date >= state.startDate) && (item.Booking_Date <= state.endDate))))
-    if (state.bookingDate)
-      setNewRows(rows.filter(item => ((item.Request_Date >= state.startDate) && (item.Request_Date <= state.endDate))))
-    console.log(newRows)
+
   }, [state])
 
   React.useEffect(() => {
     if (!state.all)
       setNewRows([])
   }, [state.all])
+
+  React.useEffect(() => {
+    if (state.requestDate)
+      setNewRows(rows.filter(item => ((item.Booking_Date >= selectedDate1) && (item.Booking_Date <= selectedDate2))))
+    if (state.bookingDate)
+      setNewRows(rows.filter(item => ((item.Request_Date >= selectedDate1) && (item.Request_Date <= selectedDate2))))
+  }, [selectedDate1, selectedDate2])
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.checked });
@@ -262,30 +265,16 @@ export default function Page2() {
               </Grid>
             </div>
             <div>
-                <Grid item xs={3} className={classes.grid2}>
+              <Grid item xs={3} className={classes.grid2}>
                 <Typography className={classes.title}>
-                  FILTER BY DATE  
+                  FILTER BY DATE
                 </Typography>
                 <FormControlLabel control={<Radio label="requestDate" value={state.requestDate} />} />requestDate
-                <FormControlLabel control={<Radio label="bookingDate" value={state.bookingDate} />}/>bookingDate
-                <br/>
-                <TextField
-                  id="date"
-                  label="startDate"
-                  type="date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-                <TextField
-                  id="date"
-                  label="endDate"
-                  type="date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-                </Grid>
+                <FormControlLabel control={<Radio label="bookingDate" value={state.bookingDate} />} />bookingDate
+                <br />
+                <TextField type="date" value={selectedDate1} onChange={handleDate1Change} />
+                <TextField type="date" value={selectedDate2} onChange={handleDate2Change} />
+              </Grid>
             </div>
             <div>
               <Grid item xs={3} className={classes.grid2}>
